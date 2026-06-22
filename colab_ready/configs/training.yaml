@@ -1,0 +1,139 @@
+# Example configuration for a 50M parameter model.
+# Replace paths and dataset names with your own before training.
+
+seed: 42
+output_dir: "./checkpoints"
+log_dir: "./logs"
+model_dir: "./models/my-model-final"
+
+tokenizer_dir: "./models/my-tokenizer"
+
+seq_len: 512
+pretokenized_corpus: "./data/corpus/my_corpus.pt"
+corpus_meta: "./data/corpus/my_corpus_meta.json"
+sft_data: "./data/sft/sft_data.jsonl"
+
+# The sources below are examples from a Turkish-focused run.
+# Replace them with datasets in your target language.
+corpus:
+  sources:
+    fineweb2_tr:
+      hf_id: "HuggingFaceFW/fineweb-2"
+      subset: "tur_Latn"
+      target_tokens: 1300000000
+      text_col: "text"
+      split: "train"
+      streaming: true
+    cosmos_corpus:
+      hf_id: "ytu-ce-cosmos/Cosmos-Turkish-Corpus-v1.0"
+      target_tokens: 200000000
+      text_col: "text"
+      split: "train"
+      streaming: true
+    wikipedia_tr:
+      hf_id: "wikimedia/wikipedia"
+      subset: "20231101.tr"
+      target_tokens: 98780000
+      text_col: "text"
+      split: "train"
+      streaming: true
+    tr_conversations:
+      local_jsonl: "./data/corpus/tr_conversations_text.jsonl"
+      target_tokens: 17800000
+      text_col: "text"
+    tr_culture:
+      local_jsonl: "./data/corpus/tr_culture_text.jsonl"
+      target_tokens: 1920000
+      text_col: "text"
+    tr_poems_cleaned:
+      hf_id: "beratcmn/turkish-poems-cleaned"
+      target_tokens: 840000
+      text_col: "poem"
+      split: "train"
+      streaming: true
+    tr_poems_generated:
+      hf_id: "orhanxakarsu/turkish-poem-generation"
+      target_tokens: 12200000
+      text_col: "poes"
+      split: "train"
+      streaming: true
+    fineweb_en_sample:
+      hf_id: "HuggingFaceFW/fineweb"
+      subset: "CC-MAIN-2024-10"
+      target_tokens: 100000000
+      text_col: "text"
+      split: "train"
+      streaming: true
+      max_samples: 600000
+  filters:
+    min_chars: 100
+    max_chars: 12000
+    turkish_char_ratio: 0.35
+    english_char_ratio: 0.25
+    max_repetition_ratio: 0.10
+    min_type_token_ratio: 0.35
+    # Content-type filtering
+    reject_keywords:
+      - "rüya"
+      - "burç"
+      - "astroloji"
+      - "indirim"
+      - "kupon"
+      - "fiyat"
+      - "otel"
+      - "rezervasyon"
+      - "tripadvisor"
+      - "booking.com"
+      - "oyun"
+      - "skor"
+      - "makyaj"
+      - "tarif"
+      - "yemek tarifi"
+      - "malzemeler"
+    reject_phrases:
+      - "Daha fazlası"
+      - "Rezervasyon Seçenekleri"
+      - "Diğer Adı:"
+      - "©"
+      - "Tüm hakları saklıdır"
+  mix_ratios:
+    # Aligned with actual available tokens after filtering (total ~1.73B tokens)
+    fineweb2_tr: 0.7505
+    cosmos_corpus: 0.1155
+    wikipedia_tr: 0.0570
+    tr_conversations: 0.0103
+    tr_culture: 0.0011
+    tr_poems_cleaned: 0.0005
+    tr_poems_generated: 0.0070
+    fineweb_en_sample: 0.0581
+  buffer_chunks: 10000
+
+cpt:
+  max_steps: 80000
+  warmup_steps: 1000
+  grad_accum: 4
+  lr: 3.0e-4
+  min_lr: 3.0e-5
+  weight_decay: 0.1
+  betas: [0.9, 0.95]
+  max_grad_norm: 1.0
+  micro_batch: 48
+  micro_batch_t4: 24
+  num_workers: 2
+  val_ratio: 0.05
+  save_every: 500
+  log_every: 50
+  eval_every: 1000
+  keep_last_n_checkpoints: 3
+  live_test_prompt: "Türkiye'nin başkenti "
+
+sft:
+  epochs: 5
+  lr: 1.0e-4
+  weight_decay: 0.1
+  betas: [0.9, 0.95]
+  max_grad_norm: 1.0
+  batch_size: 16
+  warmup_steps: 100
+  max_len: 512
+  num_workers: 2

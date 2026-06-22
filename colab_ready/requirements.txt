@@ -1,0 +1,28 @@
+# Core ML
+torch>=2.0.0
+transformers>=4.40.0
+datasets>=2.14.0
+accelerate>=0.25.0
+safetensors>=0.4.0
+huggingface_hub>=0.20.0
+
+# Data / utils
+numpy>=1.24.0
+pyyaml>=6.0
+tqdm>=4.65.0
+
+# Tokenizers
+tokenizers>=0.19.0
+sentencepiece>=0.2.0
+protobuf>=3.20.0
+
+# Export
+onnx>=1.16.0
+onnxruntime>=1.18.0
+
+# Optional: GGUF conversion (uncomment when llama.cpp is available)
+# llama-cpp-python
+
+# Optional: profiling
+# psutil
+# memory-profiler
