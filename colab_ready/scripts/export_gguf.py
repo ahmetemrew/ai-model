@@ -70,11 +70,22 @@ def main():
         "--outtype", "f16",
     ])
 
-    # Build llama-quantize binary
-    quantize_bin = llama_cpp / "llama-quantize"
+    # Build llama-quantize binary (llama.cpp now uses CMake)
+    quantize_bin = llama_cpp / "build" / "bin" / "llama-quantize"
     if not quantize_bin.exists():
+        print("[INFO] Installing CMake...")
+        run([sys.executable, "-m", "pip", "install", "-q", "cmake"])
+        print("[INFO] Configuring llama.cpp with CMake...")
+        run([
+            "cmake", "-S", ".", "-B", "build",
+            "-DCMAKE_BUILD_TYPE=Release",
+        ], cwd=llama_cpp)
         print("[INFO] Building llama-quantize...")
-        run(["make", "-j", "llama-quantize"], cwd=llama_cpp)
+        run([
+            "cmake", "--build", "build",
+            "--target", "llama-quantize",
+            "-j",
+        ], cwd=llama_cpp)
 
     # Generate requested quantized files
     requested = [q.strip().lower() for q in args.quantizations.split(",")]
